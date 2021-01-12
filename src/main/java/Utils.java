@@ -37,5 +37,10 @@ public class Utils {
         return mode;
     }
 
+    static Table meanMedian(Table t){
+        return t.summarize("t3_resin", "total_thyroxin", "total_triio",
+                AggregateFunctions.mean, AggregateFunctions.median).apply();
+    }
+
 
 }
