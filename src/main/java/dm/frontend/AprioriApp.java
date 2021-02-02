@@ -7,14 +7,12 @@ import dm.backend.table.Table;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableColumn;
-import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class Apriori {
+public class AprioriApp {
     private JTable table1;
     private JPanel mainPanel;
     private JScrollPane scroll;
@@ -66,7 +64,7 @@ public class Apriori {
         }
     }
 
-    public Apriori(){
+    public AprioriApp(){
         setEnabledPanel(panelStep1, true);
         setEnabledPanel(panelStep2, false);
         setEnabledPanel(panelStep3, false);
@@ -105,7 +103,7 @@ public class Apriori {
 
     public static void main(String[] args) {
         JFrame frame = new JFrame("Apriori");
-        frame.setContentPane(new Apriori().mainPanel);
+        frame.setContentPane(new AprioriApp().mainPanel);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(600,600);
         frame.setVisible(true);
