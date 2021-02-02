@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class Table {
-    public ArrayList<Column> columns;
+    private ArrayList<Column> columns;
     public Table(ArrayList<Column> columns){
         this.columns = columns;
     }
@@ -66,5 +66,41 @@ public class Table {
             s.replace(s.length()-2, s.length(), "").append("\n");
         }
         return s.toString();
+    }
+
+    public IntegerColumn intColumn(int i){
+        return (IntegerColumn)columns.get(i);
+    }
+
+    public DoubleColumn doubleColumn(int i){
+        return (DoubleColumn) columns.get(i);
+    }
+
+    public int height(){
+        return columns.get(0).size();
+    }
+
+    public int width(){
+        return columns.size();
+    }
+
+    public Column column(int i){
+        return columns.get(i);
+    }
+
+    public void setColumn(int i, Column col){
+        columns.set(i, col);
+    }
+
+    public Row getRow(int i){
+        Object[] t = new Object[columns.size()];
+        for (int j = 0; j < t.length; j++) {
+            t[j] = columns.get(j).get(i);
+        }
+        return new Row(t);
+    }
+
+    public void removeColumn(int i){
+        columns.remove(i);
     }
 }

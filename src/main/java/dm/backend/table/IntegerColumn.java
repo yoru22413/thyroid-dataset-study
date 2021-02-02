@@ -61,7 +61,7 @@ public class IntegerColumn extends Column{
     public Integer max(){
         int max = data[0];
         for(int i=1;i<data.length;i++){
-            if (data[i] < max){
+            if (data[i] > max){
                 max = data[i];
             }
         }
@@ -93,4 +93,26 @@ public class IntegerColumn extends Column{
         return s.toString();
     }
 
+    public IntegerColumn discretization(int n){
+        IntegerColumn res = new IntegerColumn(new int[data.length], name);
+        double max = (double) max();
+        double min = (double) min();
+        double step = (max - min)/n;
+        for(int i=0;i<data.length;i++){
+            res.set(i, (int) Math.floor((data[i] - min)/step));
+        }
+        return res;
+    }
+
+    public DoubleColumn toDoubleColumn(){
+        DoubleColumn col = new DoubleColumn(new double[data.length], name);
+        for (int i = 0; i < data.length; i++) {
+            col.set(i, get(i));
+        }
+        return col;
+    }
+
+    public IntegerColumn toIntegerColumn(){
+        return this;
+    }
 }

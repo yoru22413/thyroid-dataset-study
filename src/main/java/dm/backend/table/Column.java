@@ -6,8 +6,6 @@ public abstract class Column {
         this.name = name;
     }
 
-
-
     public static IntegerColumn discretization(IntegerColumn col, int n){
         IntegerColumn res = new IntegerColumn(new int[col.size()], col.name);
         double max = (double) col.max();
@@ -26,4 +24,11 @@ public abstract class Column {
     public abstract void set(int i, Number x);
     public abstract Number max();
     public abstract Number min();
+    public abstract IntegerColumn discretization(int n);
+    public Column toIntegerColumn(){
+        return null;
+    }
+    public Column toDoubleColumn(){
+        return null;
+    }
 }
