@@ -20,7 +20,7 @@ public class IntValue {
 
     @Override
     public String toString() {
-        return "(" + index + ", " + value + ")";
+        return "C" + index + "V" + value;
     }
 
     @Override
