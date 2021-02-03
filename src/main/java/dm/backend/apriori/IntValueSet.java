@@ -3,7 +3,7 @@ package dm.backend.apriori;
 import java.util.Arrays;
 import java.util.HashSet;
 
-public class IntValueSet extends HashSet<IntValue>{
+public class IntValueSet extends HashSet<IntValue> implements Comparable<IntValueSet>{
 
     public IntValueSet(IntValueSet intValues) {
         super(intValues);
@@ -17,4 +17,8 @@ public class IntValueSet extends HashSet<IntValue>{
 
     }
 
+    @Override
+    public int compareTo(IntValueSet o) {
+        return size() - o.size();
+    }
 }

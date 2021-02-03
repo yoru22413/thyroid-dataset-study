@@ -3,95 +3,165 @@ package dm.backend.apriori;
 import java.util.*;
 
 public class Algorithm {
-    public static IntValueSet[] apriori(AprioriStruct aps, double minSup){
-        HashSet<IntValueSet> frequentPatterns = new HashSet<>();
-        int k = 1;
-        int minSupInt = (int) Math.round(minSup*aps.length);
-        HashMap<IntValueSet, Integer> count = Algorithm.firstCount(aps);
-        ArrayList<IntValueSet> toRemove = new ArrayList<>();
-        for (Map.Entry<IntValueSet, Integer> entry :
-                count.entrySet()) {
-                if (entry.getValue() < minSupInt) {
-                    toRemove.add(entry.getKey());
-                }
-            }
-        count.keySet().removeAll(toRemove);
-        frequentPatterns.addAll(count.keySet());
-        IntValueSet[] l = count.keySet().toArray(new IntValueSet[0]);
+    public int k;
+    public int minSup;
+    public HashMap<IntValueSet, Integer> frequentPatterns;
+    public ArrayList<IntValueSet> toRemove;
+    public IntValueSet[] l;
+    public AprioriStruct aps;
+    public HashMap<IntValueSet, Integer> count;
+    public boolean finished = false;
+    public HashMap<IntValueSet, Integer> countCopy;
+    public HashSet<AssociationRule> allAssociationRules;
+    public ArrayList<AssociationRule> toRemoveAR;
+    public HashSet<AssociationRule> associationRulesSatisf;
 
-        while(true){
-            HashMap<IntValueSet, Integer> newCandidates = new HashMap<>();
-            for (int i = 0; i < l.length; i++) {
-                for (int j = i+1; j < l.length; j++) {
-                    IntValueSet copy = new IntValueSet(l[i]);
-                    boolean subsetsAreAllFrequent = true;
-                    copy.addAll(l[j]);
-                    if(copy.size() == k+1){
-                        for (Subsets it = new Subsets(copy); it.hasNext(); ) {
-                            IntValueSet ivs = it.next();
-                            if(!frequentPatterns.contains(ivs)){
-                                subsetsAreAllFrequent = false;
-                                break;
-                            }
-                        }
-                        if(subsetsAreAllFrequent) {
-                            newCandidates.put(copy, 0);
-                        }
-                    }
-                }
+    public double minConf;
+
+    public Algorithm(AprioriStruct aps, int minSup) {
+        this.minSup = minSup;
+        this.aps = aps;
+        k = 0;
+        frequentPatterns = new HashMap<>();
+        count = new HashMap<>();
+    }
+    public Algorithm(AprioriStruct aps, double minSup) {
+        this(aps, (int)Math.round(minSup*aps.length));
+    }
+
+    public void execute(){
+        while(!finished){
+            step();
+        }
+    }
+
+    public void step(){
+        if(finished){
+            try {
+                throw new Exception("The Apriori Algorithm is finished!");
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-            for (IntValueSet ivs :
-                    aps.getAll()) {
-                for (Map.Entry<IntValueSet, Integer> entry :
-                        newCandidates.entrySet()) {
-                    if(ivs.containsAll(entry.getKey())){
-                        entry.setValue(entry.getValue() + 1);
-                    }
-                }
-            }
+        }
+        if(k == 0){
+            firstCount();
+            k++;
             toRemove = new ArrayList<>();
             for (Map.Entry<IntValueSet, Integer> entry :
-                    newCandidates.entrySet()){
-                if(entry.getValue() < minSupInt){
+                    count.entrySet()) {
+                if (entry.getValue() < minSup) {
                     toRemove.add(entry.getKey());
                 }
             }
-            newCandidates.keySet().removeAll(toRemove);
-            if(newCandidates.size() == 0){
-                break;
+            countCopy = new HashMap<>(count);
+            count.keySet().removeAll(toRemove);
+            frequentPatterns.putAll(count);
+            l = count.keySet().toArray(new IntValueSet[0]);
+            if(count.size() == 0){
+                finished = true;
             }
-            l = newCandidates.keySet().toArray(new IntValueSet[0]);
-            frequentPatterns.addAll(newCandidates.keySet());
-            k++;
         }
-        return frequentPatterns.toArray(new IntValueSet[0]);
+        else{
+            afterFirstStep();
+        }
+
     }
 
-    public static IntValueSet[] apriori(AprioriStruct aps, int minSup){
-        double minSupDouble = (double) minSup / aps.length;
-        return apriori(aps, minSupDouble);
+    private void afterFirstStep() {
+        count = new HashMap<>();
+        for (int i = 0; i < l.length; i++) {
+            for (int j = i+1; j < l.length; j++) {
+                IntValueSet copy = new IntValueSet(l[i]);
+                Set<IntValueSet> fp = frequentPatterns.keySet();
+                boolean subsetsAreAllFrequent = true;
+                copy.addAll(l[j]);
+                if(copy.size() == k+1){
+                    for (Subsets it = new Subsets(copy); it.hasNext(); ) {
+                        IntValueSet ivs = it.next();
+                        if(!fp.contains(ivs)){
+                            subsetsAreAllFrequent = false;
+                            break;
+                        }
+                    }
+                    if(subsetsAreAllFrequent) {
+                        count.put(copy, 0);
+                    }
+                }
+            }
+        }
+        for (IntValueSet ivs :
+                aps.getAll()) {
+            for (Map.Entry<IntValueSet, Integer> entry :
+                    count.entrySet()) {
+                if(ivs.containsAll(entry.getKey())){
+                    entry.setValue(entry.getValue() + 1);
+                }
+            }
+        }
+        toRemove = new ArrayList<>();
+        for (Map.Entry<IntValueSet, Integer> entry :
+                count.entrySet()){
+            if(entry.getValue() < minSup){
+                toRemove.add(entry.getKey());
+            }
+        }
+        countCopy = new HashMap<>(count);
+        count.keySet().removeAll(toRemove);
+        if(count.size() == 0){
+            finished = true;
+        }
+        l = count.keySet().toArray(new IntValueSet[0]);
+        frequentPatterns.putAll(count);
+        k++;
     }
 
-    private static HashMap<IntValueSet, Integer> firstCount(AprioriStruct aps){
-        HashMap<IntValue, Integer> count = new HashMap<>();
+    private void firstCount(){
+        HashMap<IntValue, Integer> count2 = new HashMap<>();
         for (IntValueSet ivs :
                 aps.getAll()) {
             for (IntValue iv:
                     ivs) {
-                if(!count.containsKey(iv)) {
-                    count.put(iv, 1);
+                if(!count2.containsKey(iv)) {
+                    count2.put(iv, 1);
                 }
                 else{
-                    count.put(iv, count.get(iv) + 1);
+                    count2.put(iv, count2.get(iv) + 1);
                 }
             }
         }
-        HashMap<IntValueSet, Integer> count2 = new HashMap<>();
-        for (Map.Entry<IntValue, Integer> entry : count.entrySet()) {
+        count = new HashMap<>();
+        for (Map.Entry<IntValue, Integer> entry : count2.entrySet()) {
             IntValueSet ivs = new IntValueSet();
             ivs.add(entry.getKey());
-            count2.put(ivs, entry.getValue());
+            count.put(ivs, entry.getValue());
         }
-        return count2;
     }
+
+    public void associationRules(){
+        toRemoveAR = new ArrayList<>();
+        allAssociationRules = new HashSet<>();
+        for (Map.Entry<IntValueSet, Integer> entry :
+                frequentPatterns.entrySet()) {
+            for (int i = 1; i < entry.getKey().size(); i++) {
+                    IntValueSet all = entry.getKey();
+                    List<IntValue[]> combinations = Combinations.generate(entry.getKey().toArray(new IntValue[0]), i);
+                for (IntValue[] iv :
+                        combinations) {
+                    IntValueSet allCopy = (IntValueSet) all.clone();
+                    allCopy.removeAll(Arrays.asList(iv));
+                    AssociationRule rule = new AssociationRule(new IntValueSet(iv), allCopy);
+                    rule.confidence = (double) entry.getValue() / frequentPatterns.get(rule.leftside);
+                    if(rule.confidence < minConf){
+                        toRemoveAR.add(rule);
+                    }
+                    allAssociationRules.add(rule);
+                }
+
+            }
+        }
+        associationRulesSatisf = (HashSet<AssociationRule>) allAssociationRules.clone();
+        associationRulesSatisf.removeAll(toRemoveAR);
+    }
+
 }
+

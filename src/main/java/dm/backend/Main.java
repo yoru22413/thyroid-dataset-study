@@ -1,9 +1,6 @@
 package dm.backend;
 
-import dm.backend.apriori.Algorithm;
-import dm.backend.apriori.AprioriStruct;
-import dm.backend.apriori.IntValue;
-import dm.backend.apriori.IntValueSet;
+import dm.backend.apriori.*;
 import dm.backend.table.ColumnType;
 import dm.backend.table.Table;
 
@@ -20,10 +17,66 @@ public class Main {
             t.setColumn(i, t.column(i).discretization(5));
         }
         AprioriStruct aps = new AprioriStruct(t);
-        IntValueSet[] sets = Algorithm.apriori(aps, 0.4);
+        Algorithm algo = new Algorithm(aps, 0.4);
+        algo.execute();
+        IntValueSet[] sets = algo.frequentPatterns.keySet().toArray(new IntValueSet[0]);
         for (IntValueSet set :
                 sets) {
             System.out.println(set);
+        }
+        sets = new IntValueSet[]{
+            new IntValueSet(new IntValue[]{
+                    new IntValue(0, 1),
+                    new IntValue(0, 2),
+                    new IntValue(0, 3),
+                    new IntValue(0, 4),
+                    new IntValue(0, 5),
+                    new IntValue(0, 6)
+            }),
+            new IntValueSet(new IntValue[]{
+
+                    new IntValue(0, 2),
+                    new IntValue(0, 3),
+                    new IntValue(0, 4),
+                    new IntValue(0, 5),
+                    new IntValue(0, 6),
+                    new IntValue(0, 7)
+            }),
+            new IntValueSet(new IntValue[]{
+                    new IntValue(0, 1),
+                    new IntValue(0, 4),
+                    new IntValue(0, 5),
+                    new IntValue(0, 8),
+            }),
+            new IntValueSet(new IntValue[]{
+                    new IntValue(0, 1),
+                    new IntValue(0, 4),
+                    new IntValue(0, 6),
+                    new IntValue(0, 9),
+                    new IntValue(0, 10),
+            }),
+            new IntValueSet(new IntValue[]{
+                    new IntValue(0, 2),
+                    new IntValue(0, 4),
+                    new IntValue(0, 5),
+                    new IntValue(0, 10),
+                    new IntValue(0, 11),
+            })
+        };
+        System.out.println("=====================================");
+        aps = new AprioriStruct(sets);
+        algo = new Algorithm(aps, 0.6);
+        algo.execute();
+        sets = algo.frequentPatterns.keySet().toArray(new IntValueSet[0]);
+        for (IntValueSet set :
+                sets) {
+            System.out.println(set);
+        }
+        algo.minConf = 0.8;
+        algo.associationRules();
+        for (AssociationRule rule :
+                algo.associationRulesSatisf) {
+            System.out.println(rule);
         }
     }
 }
