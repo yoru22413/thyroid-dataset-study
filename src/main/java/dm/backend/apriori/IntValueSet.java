@@ -21,4 +21,11 @@ public class IntValueSet extends HashSet<IntValue> implements Comparable<IntValu
     public int compareTo(IntValueSet o) {
         return size() - o.size();
     }
+
+    @Override
+    public String toString() {
+        String s = super.toString();
+        s = s.substring(1, s.length()-1);
+        return s;
+    }
 }

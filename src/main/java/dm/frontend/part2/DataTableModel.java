@@ -1,4 +1,4 @@
-package dm.frontend;
+package dm.frontend.part2;
 
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;

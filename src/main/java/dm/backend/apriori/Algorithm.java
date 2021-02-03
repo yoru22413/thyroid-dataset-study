@@ -13,7 +13,7 @@ public class Algorithm {
     public boolean finished = false;
     public HashMap<IntValueSet, Integer> countCopy;
     public HashSet<AssociationRule> allAssociationRules;
-    public ArrayList<AssociationRule> toRemoveAR;
+    public HashSet<AssociationRule> toRemoveAR;
     public HashSet<AssociationRule> associationRulesSatisf;
 
     public double minConf;
@@ -138,7 +138,7 @@ public class Algorithm {
     }
 
     public void associationRules(){
-        toRemoveAR = new ArrayList<>();
+        toRemoveAR = new HashSet<>();
         allAssociationRules = new HashSet<>();
         for (Map.Entry<IntValueSet, Integer> entry :
                 frequentPatterns.entrySet()) {
