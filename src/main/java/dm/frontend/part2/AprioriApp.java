@@ -69,6 +69,7 @@ public class AprioriApp {
     private double stepTime = 0;
 
     private Color DARK_GREEN = new Color(0, 153,0);
+    private DecimalFormat df = new DecimalFormat("#.####");
 
     private TableModel createTableModel(Table table, String[] columnNames){
         Object[][] data = new Object[table.height()][table.width()];
@@ -177,7 +178,7 @@ public class AprioriApp {
                 stepTime += (double)(t2-t1)/1000000000;
                 table1.setModel(createTableModel(table, columnNames));
                 nextStep(panelStep1, panelStep2);
-                stepTime1Label.setText(stepTime1Label.getText() + stepTime + "s");
+                stepTime1Label.setText(stepTime1Label.getText() + df.format(stepTime) + "s");
                 stepTime1Label.setForeground(DARK_GREEN);
                 totalTime += stepTime;
             }
@@ -195,7 +196,7 @@ public class AprioriApp {
                 nextStepButton.setEnabled(false);
                 viewAllFrequentPatternsButton.setEnabled(false);
                 totalTime += stepTime;
-                stepTime2Label.setText(stepTime2Label.getText() + stepTime + "s");
+                stepTime2Label.setText(stepTime2Label.getText() + df.format(stepTime) + "s");
                 stepTime2Label.setForeground(DARK_GREEN);
             }
         });
@@ -279,7 +280,7 @@ public class AprioriApp {
                 table1.getColumnModel().getColumn(1).setMaxWidth(80);
                 viewAllFrequentPatternsButton.setEnabled(false);
                 nextStep(panelStep3, panelStep4);
-                stepTime3Label.setText(stepTime3Label.getText() + stepTime + "s");
+                stepTime3Label.setText(stepTime3Label.getText() + df.format(stepTime) + "s");
                 stepTime3Label.setForeground(DARK_GREEN);
                 totalTime += stepTime;
             }
@@ -330,11 +331,11 @@ public class AprioriApp {
                     filterAssociationRulesButton.setEnabled(false);
                     filterAssociationRulesButton.setText("Finished");
                     filterAssociationRulesButton.setBackground(Color.GREEN);
-                    stepTime4Label.setText(stepTime4Label.getText() + stepTime + "s");
+                    stepTime4Label.setText(stepTime4Label.getText() + df.format(stepTime) + "s");
                     stepTime4Label.setForeground(DARK_GREEN);
                     removePhase = 0;
                     totalTime += stepTime;
-                    totalTimeLabel.setText(totalTimeLabel.getText() + totalTime + "s");
+                    totalTimeLabel.setText(totalTimeLabel.getText() + df.format(totalTime) + "s");
                     totalTimeLabel.setForeground(DARK_GREEN);
                 }
             }
@@ -345,7 +346,7 @@ public class AprioriApp {
         JFrame frame = new JFrame("Apriori");
         frame.setContentPane(new AprioriApp().mainPanel);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(700,600);
+        frame.setSize(800,600);
         frame.setVisible(true);
     }
 
