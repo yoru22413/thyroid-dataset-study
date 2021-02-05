@@ -99,7 +99,12 @@ public class DoubleColumn extends Column{
         double x;
         for(int i=0;i<data.length;i++){
             x = get(i);
-            res.set(i, (int) Math.floor((x - min)/step));
+            if(x == max){
+                res.set(i, n-1);
+            }
+            else {
+                res.set(i, (int) Math.floor((x - min) / step));
+            }
         }
         return res;
     }

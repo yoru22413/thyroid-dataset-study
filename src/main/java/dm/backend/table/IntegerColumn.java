@@ -98,8 +98,15 @@ public class IntegerColumn extends Column{
         double max = (double) max();
         double min = (double) min();
         double step = (max - min)/n;
+        double x;
         for(int i=0;i<data.length;i++){
-            res.set(i, (int) Math.floor((data[i] - min)/step));
+            x = get(i);
+            if(x == max){
+                res.set(i, n-1);
+            }
+            else {
+                res.set(i, (int) Math.floor((x - min) / step));
+            }
         }
         return res;
     }

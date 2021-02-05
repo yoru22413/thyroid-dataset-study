@@ -172,7 +172,7 @@ public class AprioriApp {
                 stepTime = 0;
                 long t1 = System.nanoTime();
                 for (int i = 1; i < table.width(); i++) {
-                    table.setColumn(i, table.column(i).discretization(slider1.getValue()-1));
+                    table.setColumn(i, table.column(i).discretization(slider1.getValue()));
                 }
                 long t2 = System.nanoTime();
                 stepTime += (double)(t2-t1)/1000000000;
