@@ -2,7 +2,7 @@ package dm.backend.table;
 
 public abstract class Column {
     String name;
-    public Column(String name){
+    Column(String name){
         this.name = name;
     }
 
