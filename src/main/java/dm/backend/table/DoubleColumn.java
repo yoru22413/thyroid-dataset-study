@@ -109,6 +109,16 @@ public class DoubleColumn extends Column{
         return res;
     }
 
+    public DoubleColumn normalization(){
+        double mean = mean();
+        double std = Math.sqrt(var(mean));
+        DoubleColumn normalized = new DoubleColumn(data.clone(), name);
+        for (int i = 0; i < normalized.data.length; i++) {
+            normalized.data[i] = (normalized.data[i] - mean)/std;
+        }
+        return normalized;
+    }
+
     public IntegerColumn toIntegerColumn(){
         IntegerColumn col = new IntegerColumn(new int[data.length], name);
         for (int i = 0; i < data.length; i++) {

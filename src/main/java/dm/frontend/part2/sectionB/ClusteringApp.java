@@ -13,6 +13,7 @@ import javax.swing.table.TableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 public class ClusteringApp {
@@ -22,17 +23,22 @@ public class ClusteringApp {
     private JRadioButton kMeansRadioButton;
     private JRadioButton kMedoidsRadioButton;
     private JRadioButton CLARANSRadioButton;
-    private JSlider sliderNumClusters;
     private JButton algorithmStepButton;
     private JSlider slider1;
-    private JButton calculateMetricsButton;
+    private JButton a4CalculateMetricsButton;
     private JLabel precision;
     private JPanel panelSampleSize;
     private JLabel labelSampleSize;
+    private JComboBox comboBoxMaxNeighbors;
+    private JComboBox comboBoxNumLocal;
+    private JButton normalizeDataButton;
+    private JLabel labelCluster;
     private ButtonGroup buttonGroupAlgorithm;
 
     private Table table;
     private Color defaultColor = new Color(238, 238, 238);
+
+    private DecimalFormat format = new DecimalFormat("#.###");
 
     private TableModel createTableModel(Table table){
         ArrayList<String> columnNames = new ArrayList<>();
@@ -41,15 +47,14 @@ public class ClusteringApp {
             Column c = table.column(i);
             columnNames.add(c.getName());
             for (int j = 0; j < table.height(); j++) {
-                data[j][i] = c.get(i);
+                data[j][i] = format.format(c.get(j));
             }
         }
         return new DataTableModel(data, columnNames.toArray());
     }
 
     private void algorithmStepButtonCheck(){
-        algorithmStepButton.setEnabled((!CLARANSRadioButton.isSelected() || slider1.getValue() > 0) &&
-                buttonGroupAlgorithm.getSelection() != null);
+        algorithmStepButton.setEnabled(buttonGroupAlgorithm.getSelection() != null);
     }
 
     public ClusteringApp(){
@@ -58,26 +63,17 @@ public class ClusteringApp {
                 new ColumnType[]{ColumnType.INTEGER, ColumnType.INTEGER, ColumnType.DOUBLE, ColumnType.DOUBLE,
                         ColumnType.DOUBLE, ColumnType.DOUBLE},
                 columnNames);
+        for (int i = 0; i < table.width(); i++) {
+            table.setColumn(i, table.column(i).toDoubleColumn());
+        }
         table.removeColumn(0);
         table1.setModel(createTableModel(table));
         table1.setDefaultRenderer(Object.class, new DataTableCellRenderer());
 
-        slider1.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                int value = slider1.getValue();
-                String s = "Sample size : " + value + "%";
-                labelSampleSize.setText(s);
-                if (value == 0){
-                    labelSampleSize.setForeground(Color.RED);
-                    algorithmStepButtonCheck();
-                }
-                else{
-                    labelSampleSize.setForeground(Color.BLACK);
-                    algorithmStepButtonCheck();
-                }
-            }
-        });
+        for (int i = 1; i <= 200; i++) {
+            comboBoxNumLocal.addItem(i);
+            comboBoxMaxNeighbors.addItem(i);
+        }
 
         ActionListener al = new ActionListener() {
             @Override
@@ -86,15 +82,25 @@ public class ClusteringApp {
                 for (Component c : panelSampleSize.getComponents()){
                     c.setEnabled(CLARANSRadioButton.isSelected());
                 }
+                panelSampleSize.setEnabled(CLARANSRadioButton.isSelected());
             }
         };
         kMeansRadioButton.addActionListener(al);
         kMedoidsRadioButton.addActionListener(al);
         CLARANSRadioButton.addActionListener(al);
+        normalizeDataButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                for (int i = 0; i < table.width(); i++) {
+                    table.setColumn(i, table.doubleColumn(i).normalization());
+                }
+                table1.setModel(createTableModel(table));
+            }
+        });
     }
 
     public static void main(String[] args) {
-        JFrame frame = new JFrame("Apriori");
+        JFrame frame = new JFrame("Clustering");
         frame.setContentPane(new ClusteringApp().mainPanel);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(800,600);

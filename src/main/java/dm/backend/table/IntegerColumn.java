@@ -114,7 +114,7 @@ public class IntegerColumn extends Column{
     public DoubleColumn toDoubleColumn(){
         DoubleColumn col = new DoubleColumn(new double[data.length], name);
         for (int i = 0; i < data.length; i++) {
-            col.set(i, get(i));
+            col.set(i, (double)get(i));
         }
         return col;
     }
