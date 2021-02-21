@@ -48,4 +48,5 @@ public class Utils {
         double pearson_cor = covariance(col1, col2, mean1, mean2)/(Math.sqrt(var(col1, mean1)*var(col2, mean2)));
         return pearson_cor;
     }
+
 }

@@ -3,7 +3,11 @@ package dm.backend.table;
 import java.util.Arrays;
 
 public class Row{
-    Object[] data;
+    private Object[] data;
+
+    public Object[] getData() {
+        return data;
+    }
 
     public Row(Object[] data) {
         this.data = data;

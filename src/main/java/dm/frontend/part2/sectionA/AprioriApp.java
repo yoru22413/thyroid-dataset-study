@@ -1,4 +1,4 @@
-package dm.frontend.part2;
+package dm.frontend.part2.sectionA;
 
 import dm.backend.apriori.Algorithm;
 import dm.backend.apriori.AprioriStruct;
@@ -6,6 +6,8 @@ import dm.backend.apriori.AssociationRule;
 import dm.backend.apriori.IntValueSet;
 import dm.backend.table.ColumnType;
 import dm.backend.table.Table;
+import dm.frontend.part2.DataTableCellRenderer;
+import dm.frontend.part2.DataTableModel;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;

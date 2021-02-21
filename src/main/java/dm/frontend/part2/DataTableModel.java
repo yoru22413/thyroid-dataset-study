@@ -4,7 +4,7 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.Arrays;
 
-class DataTableModel extends DefaultTableModel {
+public class DataTableModel extends DefaultTableModel {
 
     Color[] rowColors;
 
