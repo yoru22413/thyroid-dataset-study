@@ -1,5 +1,7 @@
 package dm.backend.apriori;
 
+import dm.backend.Combinations;
+
 import java.util.*;
 
 public class Algorithm {

@@ -4,9 +4,7 @@ import dm.backend.table.IntegerColumn;
 import dm.backend.table.Row;
 import dm.backend.table.Table;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Random;
 
 public class CLARANS {
@@ -14,10 +12,11 @@ public class CLARANS {
     public IntegerColumn columnLabel;
     public Table table;
     public int numLocal;
-    public boolean finished = false;
     public int maxNeighbors;
-    public ArrayList<Row> medoids;
+    private ArrayList<Row> medoids;
     private ArrayList<Row> points;
+    public int[] indexMedoids;
+    public int[] indexPoints;
 
     private static double distance(Row r1, Row r2){
         double d = 0;
@@ -59,28 +58,26 @@ public class CLARANS {
 
     public static <T> ArrayList<T> pickSample(ArrayList<T> population, int nSamplesNeeded, Random r) {
         ArrayList<T> ret = new ArrayList<>();
-        int nPicked = 0, i = 0, nLeft = population.size();
+        ArrayList<Integer> index = new ArrayList<>();
+        for (int i = 0; i < population.size(); i++) {
+            index.add(i);
+        }
         while (nSamplesNeeded > 0) {
-            int rand = r.nextInt(nLeft);
-            if (rand < nSamplesNeeded) {
-                ret.set(nPicked++, population.get(i));
-                nSamplesNeeded--;
-            }
-            nLeft--;
-            i++;
+            int rand = r.nextInt(index.size());
+            ret.add(population.get(index.get(rand)));
+            index.remove(index.remove(rand));
+            nSamplesNeeded--;
         }
         return ret;
     }
 
     public static <T> T pickOneElement(ArrayList<T> population, Random r){
-        return population.get(r.nextInt() % population.size());
+        return population.get(r.nextInt(population.size()));
     }
 
 
-    public CLARANS(Table table, int columnLabel, int numClusters, int numLocal, int maxNeighbors) {
-        this.columnLabel = (IntegerColumn) table.column(columnLabel);
+    public CLARANS(Table table, int numClusters, int numLocal, int maxNeighbors) {
         this.table = table;
-        this.table.removeColumn(columnLabel);
         this.numLocal = numLocal;
         this.maxNeighbors = maxNeighbors;
         this.numClusters = numClusters;
@@ -124,5 +121,14 @@ public class CLARANS {
             }
         }
         medoids = bestCopy;
+        points = new ArrayList<>();
+        indexMedoids = new int[numClusters];
+        for (int i = 0; i < table.height(); i++) {
+            points.add(table.getRow(i));
+        }
+        for (int i = 0; i < numClusters; i++) {
+            indexMedoids[i] = points.indexOf(medoids.get(i));
+        }
+        indexPoints = index();
     }
 }

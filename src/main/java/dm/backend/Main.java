@@ -78,5 +78,8 @@ public class Main {
                 algo.associationRulesSatisf) {
             System.out.println(rule);
         }
+        int[] a = new int[]{1,1,1,2,2,2,3,3,3}, b = new int[]{0,1,0,1,1,2,2,2,2};
+        Metrics m = Utils.computeMetrics(a, b);
+        System.out.println(m);
     }
 }

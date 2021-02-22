@@ -122,4 +122,8 @@ public class IntegerColumn extends Column{
     public IntegerColumn toIntegerColumn(){
         return this;
     }
+
+    public int[] getData() {
+        return data;
+    }
 }

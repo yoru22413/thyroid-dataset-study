@@ -35,4 +35,5 @@ public abstract class Column {
     public Column toDoubleColumn(){
         return null;
     }
+
 }

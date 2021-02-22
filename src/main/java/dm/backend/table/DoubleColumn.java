@@ -130,4 +130,8 @@ public class DoubleColumn extends Column{
     public DoubleColumn toDoubleColumn(){
         return this;
     }
+
+    public double[] getData() {
+        return data;
+    }
 }

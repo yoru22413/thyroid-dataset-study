@@ -1,4 +1,6 @@
-package dm.backend.apriori;
+package dm.backend;
+
+import dm.backend.apriori.IntValue;
 
 import java.util.ArrayList;
 import java.util.List;
