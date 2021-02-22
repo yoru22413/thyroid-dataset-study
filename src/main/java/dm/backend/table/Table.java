@@ -103,4 +103,7 @@ public class Table {
     public void removeColumn(int i){
         columns.remove(i);
     }
+    public void addColumn(int i, Column column){
+        columns.add(i, column);
+    }
 }

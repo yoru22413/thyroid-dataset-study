@@ -61,8 +61,8 @@ public class Utils {
             count[classColumnData[i]]++;
         }
 
-        for (int[] interpretation :
-                Permutations.generate(clusters)) {
+        for (Permutations it = new Permutations(clusters); it.hasNext(); ) {
+            int[] interpretation = it.next();
             int[] TP = new int[3], TN = new int[3], FP = new int[3], FN = new int[3];
             for (int i = 0; i < classColumnData.length; i++) {
                 int classId = classColumnData[i], predicted = interpretation[clusterIndexPoints[i]];

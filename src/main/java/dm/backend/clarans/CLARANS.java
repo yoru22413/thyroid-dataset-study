@@ -19,6 +19,16 @@ public class CLARANS {
     public int[] indexPoints;
     public double cost = 0;
 
+    public CLARANS(Table table, int numClusters, int numLocal, int maxNeighbors) {
+        this.table = table;
+        this.numLocal = numLocal;
+        this.maxNeighbors = maxNeighbors;
+        this.numClusters = numClusters;
+        for (int i = 0; i < table.width(); i++) {
+            table.setColumn(i, table.column(i).toDoubleColumn());
+        }
+    }
+
     private static double distance(Row r1, Row r2){
         double d = 0;
         Object[] d1 = r1.getData();
@@ -74,17 +84,6 @@ public class CLARANS {
 
     public static <T> T pickOneElement(ArrayList<T> population, Random r){
         return population.get(r.nextInt(population.size()));
-    }
-
-
-    public CLARANS(Table table, int numClusters, int numLocal, int maxNeighbors) {
-        this.table = table;
-        this.numLocal = numLocal;
-        this.maxNeighbors = maxNeighbors;
-        this.numClusters = numClusters;
-        for (int i = 0; i < table.width(); i++) {
-            table.setColumn(i, table.column(i).toDoubleColumn());
-        }
     }
 
     public void run(){

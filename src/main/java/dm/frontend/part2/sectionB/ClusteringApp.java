@@ -1,13 +1,11 @@
 package dm.frontend.part2.sectionB;
 
-import dm.backend.Combinations;
 import dm.backend.Metrics;
 import dm.backend.Utils;
 import dm.backend.clarans.CLARANS;
-import dm.backend.table.Column;
-import dm.backend.table.ColumnType;
-import dm.backend.table.IntegerColumn;
-import dm.backend.table.Table;
+import dm.backend.kMeansMedoids.PointSet;
+import dm.backend.kMeansMedoids.Point;
+import dm.backend.table.*;
 import dm.frontend.part2.DataTableCellRenderer;
 import dm.frontend.part2.DataTableModel;
 
@@ -19,7 +17,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 
 public class ClusteringApp {
@@ -101,7 +98,8 @@ public class ClusteringApp {
             comboBoxNumLocal.addItem(i);
             comboBoxMaxNeighbors.addItem(i);
         }
-
+        comboBoxMaxNeighbors.setSelectedItem(50);
+        comboBoxNumLocal.setSelectedItem(50);
         ActionListener al = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -139,9 +137,44 @@ public class ClusteringApp {
                     algorithm.run();
                     long time2 = System.nanoTime();
                     timeAlgo = (double)(time2 - time1)/1000000000;
-                    centers = algorithm.indexMedoids;
                     clusters = algorithm.indexPoints;
                     cost = algorithm.cost;
+                }
+                else if(kMeansRadioButton.isSelected()){
+                    ArrayList<Point> l = new ArrayList<>();
+                    for (int i = 0; i < table.height(); i++) {
+                        Object[] r = table.getRow(i).getData();
+                        ArrayList<Float> list = new ArrayList<>();
+                        for (int j = 0; j < table.width(); j++) {
+                            list.add(((Double) r[j]).floatValue());
+                        }
+                        Point p = new Point(list);
+                        l.add(p);
+                    }
+                    PointSet ps = new PointSet(l, 3);
+                    long time1 = System.nanoTime();
+                    ps.k_means();
+                    long time2 = System.nanoTime();
+                    timeAlgo = (double)(time2 - time1)/1000000000;
+                    clusters = ps.c_cluster_id.stream().mapToInt(Integer::intValue).toArray();
+                }
+                else if(kMedoidsRadioButton.isSelected()){
+                    ArrayList<Point> l = new ArrayList<>();
+                    for (int i = 0; i < table.height(); i++) {
+                        Object[] r = table.getRow(i).getData();
+                        ArrayList<Float> list = new ArrayList<>();
+                        for (int j = 0; j < table.width(); j++) {
+                            list.add(((Double) r[j]).floatValue());
+                        }
+                        Point p = new Point(list);
+                        l.add(p);
+                    }
+                    PointSet ps = new PointSet(l, 3);
+                    long time1 = System.nanoTime();
+                    ps.k_medoids();
+                    long time2 = System.nanoTime();
+                    timeAlgo = (double)(time2 - time1)/1000000000;
+                    clusters = ps.m_cluster_id.stream().mapToInt(Integer::intValue).toArray();
                 }
                 labelExecutionTime.setText(labelExecutionTime.getText() + format.format(timeAlgo) + "s");
                 labelExecutionTime.setForeground(Color.GREEN);
@@ -149,6 +182,10 @@ public class ClusteringApp {
                 algorithmStepButton.setEnabled(false);
                 a4CalculateMetricsButton.setEnabled(true);
                 setEnablePanelRec(panelChoose, false);
+
+                table.addColumn(0, classColumn);
+                table1.setModel(createTableModel(table));
+
                 DataTableModel dtm = (DataTableModel) table1.getModel();
                 Color[] colors = new Color[]{Color.RED, Color.BLUE, Color.GREEN};
 
