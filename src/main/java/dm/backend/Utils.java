@@ -90,6 +90,9 @@ public class Utils {
                 double precision = (double) TP[i] / (TP[i] + FP[i]);
                 double recall = (double) TP[i] / (TP[i] + FN[i]);
                 double fmeasure = 2*precision*recall/(precision + recall);
+                if(Double.isNaN(fmeasure)){
+                    fmeasure = 0;
+                }
                 meanF1 += fmeasure * count[i];
                 meanPrecision += precision * count[i];
                 meanRecall += recall * count[i];
@@ -97,9 +100,6 @@ public class Utils {
             meanF1 /= classColumnData.length;
             meanPrecision /= classColumnData.length;
             meanRecall /= classColumnData.length;
-            if(Double.isNaN(meanF1)){
-                meanF1 = 0;
-            }
 
             if(meanF1 > bestF1){
                 bestF1 = meanF1;

@@ -32,7 +32,7 @@ public class ClusteringApp {
     private JButton algorithmStepButton;
     private JSlider slider1;
     private JButton a4CalculateMetricsButton;
-    private JLabel precision;
+    private JLabel labelPrecision;
     private JPanel panelSampleSize;
     private JLabel labelSampleSize;
     private JComboBox comboBoxMaxNeighbors;
@@ -41,6 +41,9 @@ public class ClusteringApp {
     private JLabel labelCluster;
     private JLabel labelExecutionTime;
     private JScrollPane scrollPaneTable;
+    private JLabel labelRecall;
+    private JLabel labelF1Score;
+    private JLabel labelCost;
     private ButtonGroup buttonGroupAlgorithm;
 
     private Table table;
@@ -48,6 +51,7 @@ public class ClusteringApp {
     private Color defaultColor = new Color(238, 238, 238);
     private double timeAlgo;
     private Metrics metrics;
+    private double cost = 0;
 
     private DecimalFormat format = new DecimalFormat("#.###");
 
@@ -137,6 +141,7 @@ public class ClusteringApp {
                     timeAlgo = (double)(time2 - time1)/1000000000;
                     centers = algorithm.indexMedoids;
                     clusters = algorithm.indexPoints;
+                    cost = algorithm.cost;
                 }
                 labelExecutionTime.setText(labelExecutionTime.getText() + format.format(timeAlgo) + "s");
                 labelExecutionTime.setForeground(Color.GREEN);
@@ -145,21 +150,34 @@ public class ClusteringApp {
                 a4CalculateMetricsButton.setEnabled(true);
                 setEnablePanelRec(panelChoose, false);
                 DataTableModel dtm = (DataTableModel) table1.getModel();
-                HashMap<Integer, Color> colors = new HashMap<>();
-                colors.put(0, Color.RED);
-                colors.put(1, Color.BLUE);
-                colors.put(2, Color.GREEN);
+                Color[] colors = new Color[]{Color.RED, Color.BLUE, Color.GREEN};
 
                 for (int i = 0; i < table.height(); i++) {
-                    dtm.setRowColour(i, colors.get(clusters[i]));
+                    dtm.setRowColour(i, colors[clusters[i]]);
                 }
                 metrics = Utils.computeMetrics(classColumn.getData(), clusters);
+                HashMap<Color, String> color2str = new HashMap<>();
+                color2str.put(Color.RED, "RED");
+                color2str.put(Color.GREEN, "GREEN");
+                color2str.put(Color.BLUE, "BLUE");
 
-                scrollPaneTable.setBorder(new TitledBorder(BorderFactory.createEtchedBorder(), "Class 1 : " +
-                        colors.get(metrics.interpretation[0]).toString() +
-                        "   Class 2 : " + colors.get(metrics.interpretation[1]).toString()
-                        + "    Class 3 : " + colors.get(metrics.interpretation[2]).toString(),
+                System.out.println(metrics);
+
+                scrollPaneTable.setBorder(new TitledBorder(BorderFactory.createEtchedBorder(), "CLUSTERS: Class 1 = " +
+                        color2str.get(colors[metrics.interpretation[0]]) +
+                        "   Class 2 = " + color2str.get(colors[metrics.interpretation[1]])
+                        + "    Class 3 = " + color2str.get(colors[metrics.interpretation[2]]),
                         TitledBorder.CENTER, TitledBorder.TOP));
+            }
+        });
+        a4CalculateMetricsButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                labelCost.setText(labelCost.getText() + cost);
+                labelF1Score.setText(labelF1Score.getText() + format.format(metrics.fmeasure*100) + "%");
+                labelPrecision.setText(labelPrecision.getText() + format.format(metrics.precision*100) + "%");
+                labelRecall.setText(labelRecall.getText() + format.format(metrics.recall*100) + "%");
+                a4CalculateMetricsButton.setEnabled(false);
             }
         });
     }

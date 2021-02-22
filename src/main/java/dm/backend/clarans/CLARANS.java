@@ -17,6 +17,7 @@ public class CLARANS {
     private ArrayList<Row> points;
     public int[] indexMedoids;
     public int[] indexPoints;
+    public double cost = 0;
 
     private static double distance(Row r1, Row r2){
         double d = 0;
@@ -130,5 +131,6 @@ public class CLARANS {
             indexMedoids[i] = points.indexOf(medoids.get(i));
         }
         indexPoints = index();
+        cost = minCost;
     }
 }
