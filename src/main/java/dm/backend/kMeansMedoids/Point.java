@@ -59,8 +59,8 @@ public class Point {
     }
 
     //methods..
-    public int absoluteDistance(Point p){
-        int ed = 0;
+    public float absoluteDistance(Point p){
+        float ed = 0;
         for(int i = 0; i < this.nbrFeatures; i++){
             ed += Math.abs(this.features.get(i) - p.getFeatures().get(i));
         }

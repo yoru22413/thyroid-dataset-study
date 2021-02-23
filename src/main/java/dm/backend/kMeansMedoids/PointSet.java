@@ -17,7 +17,7 @@ public class PointSet {
     //the arrays you asked for..
     public ArrayList<Integer> c_cluster_id;
     public ArrayList<Integer> m_cluster_id;
-    private float cost;
+    public float cost;
 
     //init..
     public PointSet(ArrayList<Point> points, int k){
@@ -129,9 +129,10 @@ public class PointSet {
 
     //calculates the nearest point to a given point for centroids/medoids selection, returns its index..
     public int nearestPoint(Point point, ArrayList<Point> points){
-        int p, min;
+        int p;
+        float min;
 
-        List<Integer> distanceVect = new ArrayList<>();
+        List<Float> distanceVect = new ArrayList<>();
 
         for(Point x : points){
             distanceVect.add(point.absoluteDistance(x));
@@ -190,9 +191,11 @@ public class PointSet {
 
             this.centroids = new ArrayList<>(newCentroids);
 
-            if(distance == 0)
+            if(distance == 0){
                 this.cost = cost;
                 break;
+            }
+
         }
 
         for(Point point : this.points){
@@ -223,11 +226,11 @@ public class PointSet {
             //and returns the new current cost..
             newCost = this.bestMedoid(randomCluster, cost);
 
-            //if the cost doesn't change three times in a row (medoids stagnation) the search stops..
             distance = cost - newCost;
-            if(distance == 0)
+            if(distance == 0){
                 this.cost = cost;
                 break;
+            }
 
         }
 
@@ -269,11 +272,12 @@ public class PointSet {
     /************Utils************/
     //takes random points from the pointset for centroids and medoids initialisation..
     public ArrayList<Point> generateRandomCentroids(){
+        Random randomGen = new Random();
         ArrayList<Point> centroids = new ArrayList<>();
         Set<Integer> randoms = new HashSet<>();
         int i = 0, random;
         while(i < this.k){
-            random = ThreadLocalRandom.current().nextInt(0, this.nbrInstances);
+            random = randomGen.nextInt(this.nbrInstances);
             if(randoms.add(random)) {
                 centroids.add(this.points.get(random));
                 i++;
