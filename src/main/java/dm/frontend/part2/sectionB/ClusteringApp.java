@@ -4,8 +4,8 @@ import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import dm.backend.Utils;
 import dm.backend.clarans.CLARANS;
-import dm.backend.kMeansMedoids.PointSet;
-import dm.backend.kMeansMedoids.Point;
+import dm.backend.kMeans.PointSet;
+import dm.backend.kMeans.Point;
 import dm.backend.table.*;
 import dm.frontend.part2.DataTableCellRenderer;
 import dm.frontend.part2.DataTableModel;
@@ -19,7 +19,6 @@ import java.awt.event.ActionListener;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 
 public class ClusteringApp {
     private JTable table1;

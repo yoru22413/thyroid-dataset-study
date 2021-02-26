@@ -1,4 +1,5 @@
-package dm.backend.clarans;
+package dm.backend.kMedoids;
+
 
 import dm.backend.table.IntegerColumn;
 import dm.backend.table.Row;
@@ -8,19 +9,15 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class CLARANS {
+public class KMedoid {
     private final int numClusters;
     public Table table;
-    public int numLocal;
-    public int maxNeighbors;
     public int[] indexMedoids;
     public int[] indexPoints;
     public double cost = 0;
 
-    public CLARANS(Table table, int numClusters, int numLocal, int maxNeighbors) {
+    public KMedoid(Table table, int numClusters) {
         this.table = table;
-        this.numLocal = numLocal;
-        this.maxNeighbors = maxNeighbors;
         this.numClusters = numClusters;
         for (int i = 0; i < table.width(); i++) {
             table.setColumn(i, table.column(i).toDoubleColumn());
@@ -55,7 +52,7 @@ public class CLARANS {
         }
         return index;
     }
-    
+
     public static double cost(ArrayList<Row> points, ArrayList<Row> medoids){
         int[] index = index(points, medoids);
         double cost = 0;
@@ -86,39 +83,40 @@ public class CLARANS {
 
     public void run(){
         ArrayList<Row> bestCopy = null;
-        double minCost = Double.MAX_VALUE;
+        double minCost = -1;
         Random random = new Random();
         ArrayList<Row> pointsO = new ArrayList<>();
         for (int i = 0; i < table.height(); i++) {
             pointsO.add(table.getRow(i));
         }
-
-        for (int l = 0; l < numLocal; l++) {
-            ArrayList<Row> points = new ArrayList<>(pointsO);
-            ArrayList<Row> medoids = pickSample(points, numClusters, random);
-            points.removeAll(medoids);
-            double cost = 0, cost_after_replace = 0;
-
-            for (int i = 0; i < maxNeighbors; i++) {
-                Row medoid = pickOneElement(medoids, random);
-                Row neighbor = pickOneElement(points, random);
-                cost = cost(points, medoids);
-                points.add(medoid);
-                points.remove(neighbor);
-                medoids.remove(medoid);
-                medoids.add(neighbor);
-                cost_after_replace = cost(points, medoids);
-                if(cost < cost_after_replace){
-                    points.add(neighbor);
-                    points.remove(medoid);
-                    medoids.add(medoid);
-                    medoids.remove(neighbor);
+        ArrayList<Row> points = new ArrayList<>(pointsO);
+        ArrayList<Row> medoids = pickSample(points, numClusters, random);
+        points.removeAll(medoids);
+        double costGlobalBefore = 0;
+        double cost = 0, cost_after_replace = 0;
+        while(costGlobalBefore > minCost) {
+            costGlobalBefore = cost(points, medoids);
+            for (int i = 0; i < medoids.size(); i++) {
+                for (int j = 0; j < points.size(); j++) {
+                    Row medoid = medoids.get(i);
+                    Row neighbor = points.get(j);
+                    cost = cost(points, medoids);
+                    points.add(medoid);
+                    points.remove(neighbor);
+                    medoids.remove(medoid);
+                    medoids.add(neighbor);
+                    cost_after_replace = cost(points, medoids);
+                    if(cost <= cost_after_replace){
+                        points.add(neighbor);
+                        points.remove(medoid);
+                        medoids.add(medoid);
+                        medoids.remove(neighbor);
+                    }
+                    else{
+                        bestCopy = new ArrayList<>(medoids);
+                        minCost = cost_after_replace;
+                    }
                 }
-                cost = Math.min(cost, cost_after_replace);
-            }
-            if(cost < minCost){
-                minCost = cost;
-                bestCopy = new ArrayList<>(medoids);
             }
         }
         indexMedoids = new int[numClusters];
@@ -126,6 +124,6 @@ public class CLARANS {
             indexMedoids[i] = pointsO.indexOf(bestCopy.get(i));
         }
         indexPoints = index(pointsO, bestCopy);
-        cost = minCost;
+        this.cost = minCost;
     }
 }

@@ -1,4 +1,4 @@
-package dm.backend.kMeansMedoids;
+package dm.backend.kMeans;
 
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;

@@ -1,4 +1,4 @@
-package dm.backend.kMeansMedoids;
+package dm.backend.kMeans;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
