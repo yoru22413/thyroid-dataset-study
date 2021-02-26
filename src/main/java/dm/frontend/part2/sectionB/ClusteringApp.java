@@ -2,7 +2,6 @@ package dm.frontend.part2.sectionB;
 
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
-import dm.backend.Metrics;
 import dm.backend.Utils;
 import dm.backend.clarans.CLARANS;
 import dm.backend.kMeansMedoids.PointSet;
@@ -19,6 +18,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 
 public class ClusteringApp {
@@ -37,19 +37,21 @@ public class ClusteringApp {
     private JComboBox comboBoxMaxNeighbors;
     private JComboBox comboBoxNumLocal;
     private JButton normalizeDataButton;
-    private JLabel labelCluster;
     private JLabel labelExecutionTime;
     private JScrollPane scrollPaneTable;
     private JLabel labelRecall;
     private JLabel labelF1Score;
     private JLabel labelCost;
+    private JButton retryButton;
     private ButtonGroup buttonGroupAlgorithm;
+    private Color[] colorClusters = new Color[]{Color.RED, Color.BLUE, Color.GREEN, Color.CYAN,
+            Color.MAGENTA, Color.ORANGE, Color.PINK, Color.YELLOW, Color.LIGHT_GRAY, Color.GRAY};
 
     private Table table;
     private IntegerColumn classColumn;
     private Color defaultColor = new Color(238, 238, 238);
     private double timeAlgo;
-    private Metrics metrics;
+    private double f1score = 0;
     private double cost = 0;
 
     private DecimalFormat format = new DecimalFormat("#.###");
@@ -100,8 +102,8 @@ public class ClusteringApp {
             comboBoxNumLocal.addItem(i);
             comboBoxMaxNeighbors.addItem(i);
         }
-        comboBoxMaxNeighbors.setSelectedItem(50);
-        comboBoxNumLocal.setSelectedItem(50);
+        comboBoxMaxNeighbors.setSelectedItem(40);
+        comboBoxNumLocal.setSelectedItem(15);
         ActionListener al = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -130,10 +132,10 @@ public class ClusteringApp {
         algorithmStepButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                int[] clusters = new int[0];
-                int[] centers;
+                int[] clusters = null;
+                int numCluster = slider1.getValue();
                 if (CLARANSRadioButton.isSelected()) {
-                    CLARANS algorithm = new CLARANS(table, 3, (int) comboBoxNumLocal.getSelectedItem(),
+                    CLARANS algorithm = new CLARANS(table, numCluster, (int) comboBoxNumLocal.getSelectedItem(),
                             (int) comboBoxMaxNeighbors.getSelectedItem());
                     long time1 = System.nanoTime();
                     algorithm.run();
@@ -152,7 +154,7 @@ public class ClusteringApp {
                         Point p = new Point(list);
                         l.add(p);
                     }
-                    PointSet ps = new PointSet(l, 3);
+                    PointSet ps = new PointSet(l, numCluster);
                     long time1 = System.nanoTime();
                     ps.k_means();
                     long time2 = System.nanoTime();
@@ -170,7 +172,7 @@ public class ClusteringApp {
                         Point p = new Point(list);
                         l.add(p);
                     }
-                    PointSet ps = new PointSet(l, 3);
+                    PointSet ps = new PointSet(l, numCluster);
                     long time1 = System.nanoTime();
                     ps.k_medoids();
                     long time2 = System.nanoTime();
@@ -182,41 +184,50 @@ public class ClusteringApp {
                 labelExecutionTime.setForeground(Color.GREEN);
                 algorithmStepButton.setText("Finished!");
                 algorithmStepButton.setEnabled(false);
-                a4CalculateMetricsButton.setEnabled(true);
                 setEnablePanelRec(panelChoose, false);
 
                 table.addColumn(0, classColumn);
                 table1.setModel(createTableModel(table));
 
                 DataTableModel dtm = (DataTableModel) table1.getModel();
-                Color[] colors = new Color[]{Color.RED, Color.BLUE, Color.GREEN};
 
-                for (int i = 0; i < table.height(); i++) {
-                    dtm.setRowColour(i, colors[clusters[i]]);
+                int[] copy = Arrays.copyOf(classColumn.getData(), classColumn.getData().length);
+                for (int i = 0; i < copy.length; i++) {
+                    copy[i]--;
                 }
-                metrics = Utils.computeMetrics(classColumn.getData(), clusters);
-                HashMap<Color, String> color2str = new HashMap<>();
-                color2str.put(Color.RED, "RED");
-                color2str.put(Color.GREEN, "GREEN");
-                color2str.put(Color.BLUE, "BLUE");
+                f1score = Utils.computeMetrics(copy, clusters);
+                for (int i = 0; i < table.height(); i++) {
+                    dtm.setRowColour(i, colorClusters[clusters[i]]);
+                }
+                System.out.println(f1score);
 
-                System.out.println(metrics);
-
-                scrollPaneTable.setBorder(new TitledBorder(BorderFactory.createEtchedBorder(), "CLUSTERS: Class 1 = " +
-                        color2str.get(colors[metrics.interpretation[0]]) +
-                        "   Class 2 = " + color2str.get(colors[metrics.interpretation[1]])
-                        + "    Class 3 = " + color2str.get(colors[metrics.interpretation[2]]),
+                scrollPaneTable.setBorder(new TitledBorder(BorderFactory.createEtchedBorder(), "Clusters",
                         TitledBorder.CENTER, TitledBorder.TOP));
+                labelCost.setText(labelCost.getText() + cost);
+                labelF1Score.setText(labelF1Score.getText() + format.format(f1score * 100) + "%");
+                retryButton.setEnabled(true);
             }
+
         });
-        a4CalculateMetricsButton.addActionListener(new ActionListener() {
+        retryButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                labelCost.setText(labelCost.getText() + cost);
-                labelF1Score.setText(labelF1Score.getText() + format.format(metrics.fmeasure * 100) + "%");
-                labelPrecision.setText(labelPrecision.getText() + format.format(metrics.precision * 100) + "%");
-                labelRecall.setText(labelRecall.getText() + format.format(metrics.recall * 100) + "%");
-                a4CalculateMetricsButton.setEnabled(false);
+                retryButton.setEnabled(false);
+                table.removeColumn(0);
+                table1.setModel(createTableModel(table));
+                setEnablePanelRec(panelChoose, true);
+                setEnablePanelRec(panelSampleSize, false);
+                if (CLARANSRadioButton.isSelected()) {
+                    CLARANSRadioButton.doClick();
+                }
+                scrollPaneTable.setBorder(new TitledBorder(BorderFactory.createEtchedBorder(), "Data",
+                        TitledBorder.CENTER, TitledBorder.TOP));
+                algorithmStepButton.setText("3: Run the algorithm");
+                algorithmStepButton.setEnabled(true);
+                labelF1Score.setText("F1-Score : ");
+                labelCost.setText("Cost : ");
+                labelExecutionTime.setText("Execution time : ");
+                labelExecutionTime.setForeground(Color.BLACK);
             }
         });
     }
@@ -249,10 +260,11 @@ public class ClusteringApp {
         mainPanel.setLayout(new GridLayoutManager(5, 2, new Insets(10, 10, 10, 10), -1, -1));
         scrollPaneTable = new JScrollPane();
         mainPanel.add(scrollPaneTable, new GridConstraints(0, 0, 4, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        scrollPaneTable.setBorder(BorderFactory.createTitledBorder(null, "Data", TitledBorder.CENTER, TitledBorder.DEFAULT_POSITION));
         table1 = new JTable();
         scrollPaneTable.setViewportView(table1);
         panelChoose = new JPanel();
-        panelChoose.setLayout(new GridLayoutManager(4, 2, new Insets(0, 0, 0, 0), -1, -1));
+        panelChoose.setLayout(new GridLayoutManager(5, 2, new Insets(0, 0, 0, 0), -1, -1));
         panelChoose.setEnabled(false);
         mainPanel.add(panelChoose, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         panelChoose.setBorder(BorderFactory.createTitledBorder("2: Algorithm parameters"));
@@ -260,10 +272,6 @@ public class ClusteringApp {
         kMeansRadioButton.setEnabled(false);
         kMeansRadioButton.setText("K-Means");
         panelChoose.add(kMeansRadioButton, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        labelCluster = new JLabel();
-        labelCluster.setEnabled(false);
-        labelCluster.setText("<html>Number of clusters is set to 3 because<br>we already know the number of classes</html>");
-        panelChoose.add(labelCluster, new GridConstraints(3, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         kMedoidsRadioButton = new JRadioButton();
         kMedoidsRadioButton.setEnabled(false);
         kMedoidsRadioButton.setText("K-Medoids");
@@ -291,32 +299,34 @@ public class ClusteringApp {
         comboBoxNumLocal = new JComboBox();
         comboBoxNumLocal.setEnabled(false);
         panelSampleSize.add(comboBoxNumLocal, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        a4CalculateMetricsButton = new JButton();
-        a4CalculateMetricsButton.setEnabled(false);
-        a4CalculateMetricsButton.setText("4: Calculate metrics");
-        mainPanel.add(a4CalculateMetricsButton, new GridConstraints(3, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        slider1 = new JSlider();
+        slider1.setMajorTickSpacing(1);
+        slider1.setMaximum(10);
+        slider1.setMinimum(1);
+        slider1.setPaintLabels(true);
+        slider1.setPaintTicks(true);
+        slider1.setSnapToTicks(false);
+        slider1.setValue(3);
+        panelChoose.add(slider1, new GridConstraints(4, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JLabel label2 = new JLabel();
+        label2.setText("Number of clusters");
+        panelChoose.add(label2, new GridConstraints(3, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         algorithmStepButton = new JButton();
         algorithmStepButton.setEnabled(false);
         algorithmStepButton.setText("3: Run the algorithm");
         mainPanel.add(algorithmStepButton, new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JPanel panel1 = new JPanel();
-        panel1.setLayout(new GridLayoutManager(2, 4, new Insets(0, 0, 0, 0), -1, -1));
+        panel1.setLayout(new GridLayoutManager(1, 3, new Insets(0, 0, 0, 0), -1, -1));
         mainPanel.add(panel1, new GridConstraints(4, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        labelPrecision = new JLabel();
-        labelPrecision.setText("Precision : ");
-        panel1.add(labelPrecision, new GridConstraints(0, 0, 2, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         labelExecutionTime = new JLabel();
         labelExecutionTime.setText("Execution time : ");
-        panel1.add(labelExecutionTime, new GridConstraints(0, 3, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        labelCost = new JLabel();
-        labelCost.setText("Cost : ");
-        panel1.add(labelCost, new GridConstraints(1, 3, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel1.add(labelExecutionTime, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         labelF1Score = new JLabel();
         labelF1Score.setText("F1-Score : ");
-        panel1.add(labelF1Score, new GridConstraints(0, 2, 2, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        labelRecall = new JLabel();
-        labelRecall.setText("Recall : ");
-        panel1.add(labelRecall, new GridConstraints(0, 1, 2, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel1.add(labelF1Score, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        labelCost = new JLabel();
+        labelCost.setText("Cost : ");
+        panel1.add(labelCost, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JPanel panel2 = new JPanel();
         panel2.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
         mainPanel.add(panel2, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
@@ -324,6 +334,10 @@ public class ClusteringApp {
         normalizeDataButton = new JButton();
         normalizeDataButton.setText("Normalize Data");
         panel2.add(normalizeDataButton, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        retryButton = new JButton();
+        retryButton.setEnabled(false);
+        retryButton.setText("Retry?");
+        mainPanel.add(retryButton, new GridConstraints(3, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         buttonGroupAlgorithm = new ButtonGroup();
         buttonGroupAlgorithm.add(kMeansRadioButton);
         buttonGroupAlgorithm.add(kMedoidsRadioButton);
@@ -336,4 +350,5 @@ public class ClusteringApp {
     public JComponent $$$getRootComponent$$$() {
         return mainPanel;
     }
+
 }

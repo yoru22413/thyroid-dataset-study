@@ -1,15 +1,6 @@
 package dm.backend;
 
-import dm.backend.table.Table;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
 
 
 public class Utils {
@@ -49,65 +40,60 @@ public class Utils {
         return pearson_cor;
     }
 
-    public static Metrics computeMetrics(int[] classColumnData, int[] clusterIndexPoints){
+    public static double computeMetrics(int[] classColumnData, int[] clusterIndexPoints){
         classColumnData = Arrays.copyOf(classColumnData, classColumnData.length);
-        int[] clusters = {0,1,2};
-        double bestF1 = -1;
-        double bestPrecision = 0, bestRecall = 0;
-        int[] bestInterpretation = null;
-        int[] count = new int[3];
-        for (int i = 0; i < classColumnData.length; i++) {
-            classColumnData[i]--;
-            count[classColumnData[i]]++;
+        int numClusters = 0;
+        for (int i = 0; i < clusterIndexPoints.length; i++) {
+            if (numClusters <= clusterIndexPoints[i]){
+                numClusters++;
+            }
         }
 
-        for (Permutations it = new Permutations(clusters); it.hasNext(); ) {
-            int[] interpretation = it.next();
-            int[] TP = new int[3], TN = new int[3], FP = new int[3], FN = new int[3];
-            for (int i = 0; i < classColumnData.length; i++) {
-                int classId = classColumnData[i], predicted = interpretation[clusterIndexPoints[i]];
-                if(classId == predicted){
-                    TP[classId]++;
-                    TN[(classId+1)%3]++;
-                    TN[(classId+2)%3]++;
-                }
-                if(classId != predicted){
-                    FP[predicted]++;
-                    FN[classId]++;
-                    for (int j = 0; j < 3; j++) {
-                        if(j != predicted && j != classId){
-                            TN[j]++;
-                            break;
-                        }
+        int numClasses = 0;
+        for (int i = 0; i < classColumnData.length; i++) {
+            if (numClasses <= classColumnData[i]){
+                numClasses++;
+            }
+        }
+
+        int[] clusters = new int[numClusters];
+        for (int i = 0; i < clusters.length; i++) {
+            clusters[i] = i;
+        }
+        int[] countClass = new int[numClasses];
+        int[] countCluster = new int[numClusters];
+        for (int i = 0; i < classColumnData.length; i++) {
+            countClass[classColumnData[i]]++;
+        }
+        for (int i = 0; i < clusterIndexPoints.length; i++) {
+            countCluster[clusterIndexPoints[i]]++;
+        }
+        double[] results = new double[numClasses];
+        for (int i = 0; i < numClasses; i++) {
+            double maxF1score = -1;
+            for (int j = 0; j < numClusters; j++) {
+                int[] countCC = new int[numClasses];
+                for (int k = 0; k < clusterIndexPoints.length; k++) {
+                    if(clusterIndexPoints[k] == j){
+                        countCC[classColumnData[k]]++;
                     }
                 }
-            }
-            double meanF1 = 0;
-            double meanPrecision = 0;
-            double meanRecall = 0;
-
-            for (int i = 0; i < 3; i++) {
-                double precision = (double) TP[i] / (TP[i] + FP[i]);
-                double recall = (double) TP[i] / (TP[i] + FN[i]);
-                double fmeasure = 2*precision*recall/(precision + recall);
-                if(Double.isNaN(fmeasure)){
-                    fmeasure = 0;
+                double precision = (double)countCC[i]/countCluster[j];
+                double recall = (double)countCC[i]/countClass[i];
+                double f1score = 2*precision*recall/(precision+recall);
+                if(Double.isNaN(f1score)){
+                    f1score = 0;
                 }
-                meanF1 += fmeasure * count[i];
-                meanPrecision += precision * count[i];
-                meanRecall += recall * count[i];
+                if (f1score > maxF1score){
+                    maxF1score = f1score;
+                }
             }
-            meanF1 /= classColumnData.length;
-            meanPrecision /= classColumnData.length;
-            meanRecall /= classColumnData.length;
-
-            if(meanF1 > bestF1){
-                bestF1 = meanF1;
-                bestInterpretation = interpretation;
-                bestPrecision = meanPrecision;
-                bestRecall = meanRecall;
-            }
+            results[i] = maxF1score;
         }
-        return new Metrics(bestInterpretation, bestF1, bestPrecision, bestRecall);
+        double sum = 0;
+        for (int i = 0; i < results.length; i++) {
+                sum += (double) countClass[i]/classColumnData.length * results[i];
+        }
+        return sum;
     }
 }
