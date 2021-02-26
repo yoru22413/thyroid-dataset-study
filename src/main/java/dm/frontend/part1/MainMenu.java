@@ -31,10 +31,10 @@ public class MainMenu {
     // afficher les histogrammes
     // Affichages des diagrammes
     // Existences de correlations
-    public static void main(String[] args){
+    public static void create(JFrame parent){
 
-        final JFrame f=new JFrame("Menu Principal");
-        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        final JDialog f=new JDialog(parent,"Menu Principal", true);
+
 
         JLabel l = new JLabel("         AMMAR KHODJA Hichem         -    BOUDRAR Ryad         -        HARITI Halima");
         l.setOpaque(true);
@@ -66,10 +66,10 @@ public class MainMenu {
 
                 table.getColumnModel().getColumn(0).setPreferredWidth(50);
                 table.getColumnModel().getColumn(1).setPreferredWidth(350);
-                JFrame f = new JFrame();
-                f.add(new JScrollPane(table));
-                f.setSize(430, 300);
-                f.setVisible(true);
+                JDialog ff = new JDialog(f, "", true);
+                ff.add(new JScrollPane(table));
+                ff.setSize(430, 300);
+                ff.setVisible(true);
             }
         });
         desc.setBounds(110,100,250,30);
@@ -91,10 +91,10 @@ public class MainMenu {
                 table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
                 table.setSize(400, 300);
                 table.setRowHeight(40);
-                JFrame f = new JFrame();
-                f.add(new JScrollPane(table));
-                f.setSize(500, 300);
-                f.setVisible(true);
+                JDialog ff = new JDialog(f, "", true);
+                ff.add(new JScrollPane(table));
+                ff.setSize(500, 300);
+                ff.setVisible(true);
             }
         });
         affich.setBounds(110,130,250,30);
@@ -114,10 +114,10 @@ public class MainMenu {
                 table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
                 table.setSize(400, 300);
                 table.setRowHeight(40);
-                JFrame f = new JFrame();
-                f.add(new JScrollPane(table));
-                f.setSize(350, 250);
-                f.setVisible(true);
+                JDialog ff = new JDialog(f, "", true);
+                ff.add(new JScrollPane(table));
+                ff.setSize(350, 250);
+                ff.setVisible(true);
             }
         });
         stats.setBounds(110,160,250,30);
@@ -138,14 +138,14 @@ public class MainMenu {
         JButton boxplot=new JButton("Afficher les boites a moustaches");
         boxplot.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e3){
-                JFrame b=new JFrame();
+                JDialog b=new JDialog(f, "", true);
 
                 JButton boxplot1=new JButton("Boxplot t3_resin");
                 boxplot1.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent e11) {
                         ImgInterfaces a = new ImgInterfaces();
 
-                        a.img("Results/boxplots/t3_resin__boxplot.png");
+                        a.img("Results/boxplots/t3_resin__boxplot.png", f);
                     }
                 });
                 boxplot1.setBounds(50,20,200,30);
@@ -155,7 +155,7 @@ public class MainMenu {
                 boxplot2.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent e11) {
                         ImgInterfaces a = new ImgInterfaces();
-                        a.img("Results/boxplots/total_thyroxin__boxplot.png");
+                        a.img("Results/boxplots/total_thyroxin__boxplot.png", f);
                     }
                 });
                 boxplot2.setBounds(50,50,200,30);
@@ -165,7 +165,7 @@ public class MainMenu {
                 boxplot3.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent e11) {
                         ImgInterfaces a = new ImgInterfaces();
-                        a.img("Results/boxplots/total_triio__boxplot.png");
+                        a.img("Results/boxplots/total_triio__boxplot.png", f);
                     }
                 });
                 boxplot3.setBounds(50,80,200,30);
@@ -175,7 +175,7 @@ public class MainMenu {
                 boxplot4.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent e11) {
                         ImgInterfaces a = new ImgInterfaces();
-                        a.img("Results/boxplots/tsh__boxplot.png");
+                        a.img("Results/boxplots/tsh__boxplot.png", f);
                     }
                 });
                 boxplot4.setBounds(50,110,200,30);
@@ -185,7 +185,7 @@ public class MainMenu {
                 boxplot5.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent e11) {
                         ImgInterfaces a = new ImgInterfaces();
-                        a.img("Results/boxplots/max_diff_tsh__boxplot.png");
+                        a.img("Results/boxplots/max_diff_tsh__boxplot.png", f);
                     }
                 });
                 boxplot5.setBounds(50,140,200,30);
@@ -206,13 +206,13 @@ public class MainMenu {
         JButton histo=new JButton("Afficher les Histogrammes");
         histo.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
-                JFrame b=new JFrame();
+                JDialog b=new JDialog(f, "", true);
 
                 JButton hist1=new JButton("Histogram max_diff_tsh");
                 hist1.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent e11) {
                         ImgInterfaces a = new ImgInterfaces();
-                        a.img("Results/histograms/max_diff_tsh__hist.png");
+                        a.img("Results/histograms/max_diff_tsh__hist.png", f);
                     }
                 });
                 hist1.setBounds(50,20,200,30);
@@ -222,7 +222,7 @@ public class MainMenu {
                 hist2.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent e11) {
                         ImgInterfaces a = new ImgInterfaces();
-                        a.img("Results/histograms/t3_resin__hist.png");
+                        a.img("Results/histograms/t3_resin__hist.png", f);
                     }
                 });
                 hist2.setBounds(50,50,200,30);
@@ -232,7 +232,7 @@ public class MainMenu {
                 hist3.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent e11) {
                         ImgInterfaces a = new ImgInterfaces();
-                        a.img("Results/histograms/total_thyroxin__hist.png");
+                        a.img("Results/histograms/total_thyroxin__hist.png", f);
                     }
                 });
                 hist3.setBounds(50,80,200,30);
@@ -242,7 +242,7 @@ public class MainMenu {
                 hist4.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent e11) {
                         ImgInterfaces a = new ImgInterfaces();
-                        a.img("Results/histograms/total_triio__hist.png");
+                        a.img("Results/histograms/total_triio__hist.png", f);
                     }
                 });
                 hist4.setBounds(50,110,200,30);
@@ -252,7 +252,7 @@ public class MainMenu {
                 hist5.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent e11) {
                         ImgInterfaces a = new ImgInterfaces();
-                        a.img("Results/histograms/tsh__hist.png");
+                        a.img("Results/histograms/tsh__hist.png", f);
                     }
                 });
                 hist5.setBounds(50,140,200,30);
@@ -277,7 +277,7 @@ public class MainMenu {
         diag.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
 
-                JFrame b=new JFrame();
+                JDialog b=new JDialog(f, "", true);
 
                 JLabel label1 = new JLabel("Variable 1", SwingConstants.CENTER);
                 label1.setBounds(50,20,200,30);
@@ -299,7 +299,7 @@ public class MainMenu {
                 diag1.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent e11) {
                         ImgInterfaces a = new ImgInterfaces();
-                        a.img("Results/scatterplots/" + combo1.getSelectedItem() + "__" + combo2.getSelectedItem() +"__scatter.png");
+                        a.img("Results/scatterplots/" + combo1.getSelectedItem() + "__" + combo2.getSelectedItem() +"__scatter.png", f);
                     }
                 });
                 diag1.setBounds(50,180,200,30);
@@ -329,7 +329,5 @@ public class MainMenu {
         f.setSize(500,500);
         f.setLayout(null);
         f.setVisible(true);
-        f.show(true);
-
     }
 }

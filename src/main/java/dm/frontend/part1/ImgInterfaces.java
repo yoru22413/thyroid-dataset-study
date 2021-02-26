@@ -11,8 +11,8 @@ import java.net.URL;
 public class ImgInterfaces {
 
 
-    void img(String s){
-        JFrame z = new JFrame("fenetre");
+    void img(String s, JDialog frame){
+        JDialog z = new JDialog(frame,"", true);
         JLabel bg;
         BufferedImage img = null;
         try {
