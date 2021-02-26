@@ -6,6 +6,7 @@ import dm.backend.Utils;
 import dm.backend.clarans.CLARANS;
 import dm.backend.kMeans.PointSet;
 import dm.backend.kMeans.Point;
+import dm.backend.kMedoids.KMedoids;
 import dm.backend.table.*;
 import dm.frontend.part2.DataTableCellRenderer;
 import dm.frontend.part2.DataTableModel;
@@ -101,8 +102,8 @@ public class ClusteringApp {
             comboBoxNumLocal.addItem(i);
             comboBoxMaxNeighbors.addItem(i);
         }
-        comboBoxMaxNeighbors.setSelectedItem(40);
-        comboBoxNumLocal.setSelectedItem(15);
+        comboBoxMaxNeighbors.setSelectedItem(30);
+        comboBoxNumLocal.setSelectedItem(20);
         ActionListener al = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -161,23 +162,13 @@ public class ClusteringApp {
                     clusters = ps.c_cluster_id.stream().mapToInt(Integer::intValue).toArray();
                     cost = ps.cost;
                 } else if (kMedoidsRadioButton.isSelected()) {
-                    ArrayList<Point> l = new ArrayList<>();
-                    for (int i = 0; i < table.height(); i++) {
-                        Object[] r = table.getRow(i).getData();
-                        ArrayList<Float> list = new ArrayList<>();
-                        for (int j = 0; j < table.width(); j++) {
-                            list.add(((Double) r[j]).floatValue());
-                        }
-                        Point p = new Point(list);
-                        l.add(p);
-                    }
-                    PointSet ps = new PointSet(l, numCluster);
+                    KMedoids algorithm = new KMedoids(table, numCluster);
                     long time1 = System.nanoTime();
-                    ps.k_medoids();
+                    algorithm.run();
                     long time2 = System.nanoTime();
                     timeAlgo = (double) (time2 - time1) / 1000000000;
-                    clusters = ps.m_cluster_id.stream().mapToInt(Integer::intValue).toArray();
-                    cost = ps.cost;
+                    clusters = algorithm.indexPoints;
+                    cost = algorithm.cost;
                 }
                 labelExecutionTime.setText(labelExecutionTime.getText() + format.format(timeAlgo) + "s");
                 labelExecutionTime.setForeground(Color.GREEN);

@@ -9,14 +9,14 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class KMedoid {
+public class KMedoids {
     private final int numClusters;
     public Table table;
     public int[] indexMedoids;
     public int[] indexPoints;
     public double cost = 0;
 
-    public KMedoid(Table table, int numClusters) {
+    public KMedoids(Table table, int numClusters) {
         this.table = table;
         this.numClusters = numClusters;
         for (int i = 0; i < table.width(); i++) {
