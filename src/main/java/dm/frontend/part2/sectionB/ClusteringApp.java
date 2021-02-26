@@ -23,7 +23,7 @@ import java.util.Arrays;
 
 public class ClusteringApp {
     private JTable table1;
-    private JPanel mainPanel;
+    public JPanel mainPanel;
     private JPanel panelChoose;
     private JRadioButton kMeansRadioButton;
     private JRadioButton kMedoidsRadioButton;

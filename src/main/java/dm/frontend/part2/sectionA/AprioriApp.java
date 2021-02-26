@@ -41,7 +41,7 @@ class IntValueSetInteger implements Comparable<IntValueSetInteger>{
 
 public class AprioriApp {
     private JTable table1;
-    private JPanel mainPanel;
+    public JPanel mainPanel;
     private JScrollPane scroll;
     private JButton buttonDiscretize;
     private JSlider slider1;
