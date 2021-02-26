@@ -33,7 +33,7 @@
                         <configuration>
                             <archive>
                                 <manifest>
-                                    <mainClass>dm.frontend.part2.sectionB.ClusteringApp</mainClass>
+                                    <mainClass>dm.frontend.main.MainApp</mainClass>
                                 </manifest>
                             </archive>
                             <descriptorRefs>
